@@ -3,7 +3,7 @@
 }
 
 .App-header {
-    background-color: #282c34;
+    background-color: #60656e;
     padding: 20px;
     color: white;
 }
@@ -32,16 +32,19 @@
     font-size: 1em;
     background-color: #61dafb;
     border: none;
-    color: white;
+    color: rgb(0, 0, 0);
     cursor: pointer;
 }
 
+.question-answer{
+    display: flex;
+}
  .sql-editor {
     font-family: Arial, sans-serif;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: #2e2e2e;
+    background-color: #c2bfbf;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
 }
@@ -85,3 +88,38 @@
     position: absolute;
     top: 0;
 }
+
+.label-input{
+    color: #000000;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+
+}
+.label-and-input{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.input-box{
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
