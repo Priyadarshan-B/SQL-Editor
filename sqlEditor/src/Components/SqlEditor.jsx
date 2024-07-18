@@ -5,6 +5,7 @@ import axios from "axios";
 
 const SQLEditor = ({ studentId }) => {
   const [rollnumber, setRollNumber] = useState("");
+  const [buttonstate, setButtonState] = useState(false);
   const [questionQuery, setQuestionQuery] = useState(`
 CREATE TABLE branches (
     branch_id INT PRIMARY KEY,
@@ -39,8 +40,8 @@ INSERT INTO students (student_id, name, age, branch_id) VALUES
   const expectedResults = [
     `student_id | name | age | branch_name
 1 | John Doe | 20 | Computer Sci
-3 | Sam Brown | 21 | Computer Sci
 2 | Jane Smith | 22 | Electronics
+3 | Sam Brown | 21 | Computer Sci
 4 | Lisa Ray | 23 | Mechanical`,
     `name | age
 John Doe | 20`,
@@ -49,7 +50,6 @@ John Doe | 20`,
   ];
 
   useEffect(() => {
-    // Parse questionQuery to extract table data
     const parseQuery = () => {
       const branches = [
         { branch_id: 1, branch_name: "Computer Sci" },
@@ -69,6 +69,7 @@ John Doe | 20`,
   }, []);
 
   const executeQuery = async () => {
+    setButtonState(true);
     try {
       const queries = answerQuery
         .split(";")
@@ -77,7 +78,7 @@ John Doe | 20`,
       let results = [];
       for (const query of queries) {
         const response = await axios.post(
-          "http://10.10.171.46:5000/execute-query",
+          "http://10.10.190.81:5000/execute-query",
           {
             rollnumber: rollnumber,
             structureQuery: questionQuery,
@@ -86,7 +87,7 @@ John Doe | 20`,
         );
         results.push(response.data.formattedResults);
       }
-      setResult(results);
+      setResult(results.join("\n"));
 
       const testResults = results
         .map((result, index) => {
@@ -104,6 +105,7 @@ John Doe | 20`,
       alert("Error executing query.");
       setTestResults(testResults);
     }
+    setButtonState(false);
   };
 
   const editorDidMount = (editor) => {};
@@ -125,6 +127,7 @@ John Doe | 20`,
             placeholder="Your Register Number"
             value={rollnumber}
             onChange={(e) => setRollNumber(e.target.value)}
+            required
           />
         </div>
         <br />
@@ -146,7 +149,7 @@ John Doe | 20`,
             value={questionQuery}
             placeholder="Enter structure query here..."
             rows="20"
-            style={{ width: "100%", padding: "10px", fontSize: "16px", resize:'none' }}
+            style={{ width: "100%", padding: "10px", fontSize: "16px", resize: "none" }}
             readOnly
           />
         </div>
@@ -237,11 +240,24 @@ John Doe | 20`,
           editorDidMount={editorDidMount}
         />
       </div>
-      <button onClick={executeQuery}>Execute Query</button>
+      <button
+        onClick={buttonstate ? null : executeQuery}
+        disabled={buttonstate}
+        style={{
+          backgroundColor: buttonstate ? "grey" : "blue",
+          color: "white",
+          padding: "10px 20px",
+          border: "none",
+          borderRadius: "4px",
+          cursor: buttonstate ? "not-allowed" : "pointer",
+        }}
+      >
+        {buttonstate?"Please Wait...":"Execute Query"}
+      </button>
       {result.length > 0 && (
         <div className="result">
           <h3>Result</h3>
-          <pre>{JSON.stringify(result, null, 2)}</pre>
+          <pre>{result}</pre>
         </div>
       )}
       {testResults && (

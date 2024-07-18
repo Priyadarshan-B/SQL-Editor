@@ -4,6 +4,7 @@ const cors = require('cors');
 const { sequelize, User, StudentDatabase } = require('./models');
 const { QueryTypes, Sequelize } = require('sequelize');
 
+
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
