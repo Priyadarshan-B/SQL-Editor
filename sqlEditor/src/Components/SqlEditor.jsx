@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MonacoEditor from "react-monaco-editor";
 import "monaco-editor/min/vs/editor/editor.main.css";
 import axios from "axios";
+import apiHost from "../utlis/api";
 
 const SQLEditor = () => {
   const [rollnumber, setRollNumber] = useState("");
@@ -78,7 +79,7 @@ John Doe | 20`,
       let results = [];
       for (const query of queries) {
         const response = await axios.post(
-          "http://192.168.129.42:5000/execute-query",
+          `${apiHost}/execute-query`,
           {
             rollnumber: rollnumber,
             structureQuery: questionQuery,
