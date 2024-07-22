@@ -6,7 +6,7 @@ module.exports = {
         host: '127.0.0.1',
         dialect: 'mysql',
         pool: {
-            max: 10,
+            max: 10000,
             min: 0,
             acquire: 30000,
             idle: 10000

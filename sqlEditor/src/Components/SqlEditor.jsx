@@ -3,7 +3,7 @@ import MonacoEditor from "react-monaco-editor";
 import "monaco-editor/min/vs/editor/editor.main.css";
 import axios from "axios";
 
-const SQLEditor = ({ studentId }) => {
+const SQLEditor = () => {
   const [rollnumber, setRollNumber] = useState("");
   const [buttonstate, setButtonState] = useState(false);
   const [questionQuery, setQuestionQuery] = useState(`
@@ -33,7 +33,7 @@ INSERT INTO students (student_id, name, age, branch_id) VALUES
   `);
   const [answerQuery, setAnswerQuery] = useState("");
   const [result, setResult] = useState([]);
-  const [testResults, setTestResults] = useState("");
+  const [testResults, setTestResults] = useState([]);
   const [branchesData, setBranchesData] = useState([]);
   const [studentsData, setStudentsData] = useState([]);
 
@@ -78,7 +78,7 @@ John Doe | 20`,
       let results = [];
       for (const query of queries) {
         const response = await axios.post(
-          "http://10.10.190.81:5000/execute-query",
+          "http://10.10.183.246:5000/execute-query",
           {
             rollnumber: rollnumber,
             structureQuery: questionQuery,
@@ -89,21 +89,25 @@ John Doe | 20`,
       }
       setResult(results.join("\n"));
 
-      const testResults = results
-        .map((result, index) => {
-          const passed =
-            result.trim() === expectedResults[index].trim()
-              ? "Passed"
-              : "Failed";
-          return `Test Case ${index + 1}: ${passed}`;
-        })
-        .join("\n");
+      const checkResults = (expectedResults, results) => {
+        return expectedResults.map((expectedResult, index) => {
+          const expectedLines = new Set(expectedResult.split("\n").map(line => line.trim()));
+          const resultLines = new Set(results[index].split("\n").map(line => line.trim()));
 
-      setTestResults(testResults);
+          for (let line of expectedLines) {
+            if (!resultLines.has(line)) {
+              return `Test Case ${index + 1}: Failed`;
+            }
+          }
+          return `Test Case ${index + 1}: Passed`;
+        });
+      };
+
+      const testResults = checkResults(expectedResults, results);
+      setTestResults(testResults.join("\n"));
     } catch (error) {
       setResult(error.response ? error.response.data : "Error executing query");
       alert("Error executing query.");
-      setTestResults(testResults);
     }
     setButtonState(false);
   };
@@ -252,7 +256,7 @@ John Doe | 20`,
           cursor: buttonstate ? "not-allowed" : "pointer",
         }}
       >
-        {buttonstate?"Please Wait...":"Execute Query"}
+        {buttonstate ? "Please Wait..." : "Execute Query"}
       </button>
       {result.length > 0 && (
         <div className="result">
@@ -260,7 +264,7 @@ John Doe | 20`,
           <pre>{result}</pre>
         </div>
       )}
-      {testResults && (
+      {testResults.length > 0 && (
         <div className="test-results">
           <h3>Test Results</h3>
           <pre>{testResults}</pre>
