@@ -78,7 +78,7 @@ John Doe | 20`,
       let results = [];
       for (const query of queries) {
         const response = await axios.post(
-          "http://10.10.183.246:5000/execute-query",
+          "http://192.168.129.42:5000/execute-query",
           {
             rollnumber: rollnumber,
             structureQuery: questionQuery,
