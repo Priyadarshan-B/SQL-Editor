@@ -16,6 +16,8 @@ db.sequelize = sequelize;
 
 db.User = require('./user')(sequelize, DataTypes);
 db.StudentDatabase = require('./studentDatabase')(sequelize, DataTypes);
+db.Question = require('./question')(sequelize, Sequelize);
+db.SqlQuestion = require('./output.js')(sequelize, Sequelize)
 
 db.User.hasMany(db.StudentDatabase, { foreignKey: 'rollnumber', sourceKey: 'rollnumber' });
 db.StudentDatabase.belongsTo(db.User, { foreignKey: 'rollnumber', targetKey: 'rollnumber' });

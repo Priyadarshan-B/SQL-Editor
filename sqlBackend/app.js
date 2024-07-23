@@ -3,10 +3,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { sequelize, User, StudentDatabase } = require('./models');
 const { QueryTypes, Sequelize } = require('sequelize');
+const questionsRoutes = require('./routes/question')
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
+
+
+app.use('/api', questionsRoutes);
 
 sequelize.sync().then(() => {
     console.log('Database & tables created!');

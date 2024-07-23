@@ -1,49 +1,86 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import './question.css'
+import Select from "react-select";
+import './question.css';
+import apiHost from "../utlis/api";
 
 function Question() {
-  const [question, setQuestion] = useState("");
-  const [sampleOutputs, setSampleOutputs] = useState([""]);
-  const [outputs, setOutputs] = useState([""]);
+  const [questionDropdown, setQuestionDropdown] = useState(null);
+  const [question, setQuestion] = useState({ title: "", question: "" });
+  const [questionOptions, setQuestionOptions] = useState([]);
+  const [isAddingNewQuestion, setIsAddingNewQuestion] = useState(false);
+  const [outputs, setOutputs] = useState([{ sampleoutput: "", output: "" }]);
 
-  const handleAddIteration = () => {
-    setSampleOutputs([...sampleOutputs, ""]);
-    setOutputs([...outputs, ""]);
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await axios.get(`${apiHost}/api/questions`);
+        const options = response.data.map(q => ({ value: q.id, label: q.title }));
+        setQuestionOptions(options);
+      } catch (error) {
+        console.error("Error fetching question options:", error);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
+
+  const handleQuestionDropdownChange = (selectedOption) => {
+    setQuestionDropdown(selectedOption);
   };
 
-  const handleRemoveIteration = (index) => {
-    const newSampleOutputs = sampleOutputs.filter((_, i) => i !== index);
-    const newOutputs = outputs.filter((_, i) => i !== index);
-    setSampleOutputs(newSampleOutputs);
+  const handleQuestionChange = (field, value) => {
+    setQuestion(prevQuestion => ({ ...prevQuestion, [field]: value }));
+  };
+
+  const handleAddQuestion = () => {
+    setIsAddingNewQuestion(true);
+  };
+
+  const handleOutputChange = (index, field, value) => {
+    const newOutputs = outputs.map((output, i) => {
+      if (i === index) {
+        return { ...output, [field]: value };
+      }
+      return output;
+    });
     setOutputs(newOutputs);
   };
 
-  const handleSampleOutputChange = (index, value) => {
-    const newSampleOutputs = [...sampleOutputs];
-    newSampleOutputs[index] = value;
-    setSampleOutputs(newSampleOutputs);
+  const handleAddOutput = () => {
+    setOutputs([...outputs, { sampleoutput: "", output: "" }]);
   };
 
-  const handleOutputChange = (index, value) => {
-    const newOutputs = [...outputs];
-    newOutputs[index] = value;
-    setOutputs(newOutputs);
+  const handleDeleteOutput = (index) => {
+    setOutputs(outputs.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Determine the question ID based on whether a new question is being added or selected from the dropdown
+    const selectedQuestionId = isAddingNewQuestion
+      ? question.id
+      : questionDropdown?.value;
+
+    if (!selectedQuestionId) {
+      console.error("No question ID found.");
+      return;
+    }
+
+    // Transform data into the required format
+    const formattedOutputs = outputs.map(output => ({
+      question: selectedQuestionId,
+      sample_output: output.sampleoutput.replace(/\r?\n/g, '\\n'), 
+      output: output.output.replace(/\r?\n/g, '\\n') 
+    }));
+
+    console.log("Data to be sent:", formattedOutputs);
     try {
-      const response = await axios.post('/question', {
-        question,
-        sampleOutputs,
-        outputs
-      });
-      console.log(response.data);
-      // Handle success response
+      const response = await axios.post(`${apiHost}/api/allquestion`, formattedOutputs);
+      console.log("Response from server:", response.data);
     } catch (error) {
-      console.error(error);
-      // Handle error response
+      console.error("Error sending data:", error);
     }
   };
 
@@ -51,37 +88,65 @@ function Question() {
     <div className="question-container">
       <h3>Add Question (SQL)</h3>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="question">Question - query</label>
-        <textarea
-          type="text"
-          id="question"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-        />
-        {sampleOutputs.map((sampleOutput, index) => (
-          <div key={index} className="iteration">
-            <label htmlFor={`soutput-${index}`}>Sample Output</label>
-            <input
-              type="text"
-              id={`soutput-${index}`}
-              value={sampleOutput}
-              onChange={(e) => handleSampleOutputChange(index, e.target.value)}
-            />
-            <label htmlFor={`output-${index}`}>Output</label>
-            <input
-              type="text"
-              id={`output-${index}`}
-              value={outputs[index]}
-              onChange={(e) => handleOutputChange(index, e.target.value)}
-            />
-            <button type="button" onClick={() => handleRemoveIteration(index)}>
-              Delete
+        {!isAddingNewQuestion && (
+          <>
+            <div className="question-block">
+              <label htmlFor="question-dropdown">Select Initial Question</label>
+              <Select
+                id="question-dropdown"
+                options={questionOptions}
+                value={questionDropdown}
+                onChange={handleQuestionDropdownChange}
+              />
+            </div>
+            {outputs.map((output, index) => (
+              <div className="output-block" key={index}>
+                <label htmlFor={`sampleoutput-${index}`}>Sample Output {index + 1}</label>
+                <input
+                  type="text"
+                  id={`sampleoutput-${index}`}
+                  value={output.sampleoutput}
+                  onChange={(e) => handleOutputChange(index, 'sampleoutput', e.target.value)}
+                />
+                <label htmlFor={`output-${index}`}>Output {index + 1}</label>
+                <input
+                  type="text"
+                  id={`output-${index}`}
+                  value={output.output}
+                  onChange={(e) => handleOutputChange(index, 'output', e.target.value)}
+                />
+                <button type="button" onClick={() => handleDeleteOutput(index)}>
+                  Delete Output
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={handleAddOutput}>
+              Add Output
             </button>
+          </>
+        )}
+        {isAddingNewQuestion && (
+          <div className="question-block">
+            <label htmlFor="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              value={question.title}
+              onChange={(e) => handleQuestionChange('title', e.target.value)}
+            />
+            <label htmlFor="question">Question</label>
+            <textarea
+              id="question"
+              value={question.question}
+              onChange={(e) => handleQuestionChange('question', e.target.value)}
+            />
           </div>
-        ))}
-        <button type="button" onClick={handleAddIteration}>
-          Add
-        </button>
+        )}
+        {!isAddingNewQuestion && (
+          <button type="button" onClick={handleAddQuestion}>
+            Add New Question
+          </button>
+        )}
         <button type="submit">Submit</button>
       </form>
     </div>
