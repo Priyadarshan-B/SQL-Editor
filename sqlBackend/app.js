@@ -4,7 +4,6 @@ const cors = require('cors');
 const { sequelize, User, StudentDatabase } = require('./models');
 const { QueryTypes, Sequelize } = require('sequelize');
 
-
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
@@ -92,15 +91,18 @@ app.post('/execute-query', async (req, res) => {
             results.push(result);
         }
 
-        const formattedResults = results.map(result => {
-            if (result.length > 0) {
-                const headers = Object.keys(result[0]).join(' | ');
-                const rows = result.map(row => Object.values(row).join(' | ')).join('\n');
-                return `${headers}\n${rows}`;
-            } else {
-                return 'No results';
-            }
-        }).join('\n\n');
+        const formattedResults = results
+            .map(result => {
+                if (result.length > 0) {
+                    const headers = Object.keys(result[0]).join(' | ');
+                    const rows = result.map(row => Object.values(row).map(value => value === null ? 'NULL' : value).join(' | ')).join('\n');
+                    return `${headers}\n${rows}`;
+                } else {
+                    return 'No results';
+                }
+            })
+            .filter(result => result !== 'No results')
+            .join('\n\n');
 
         res.status(200).send({ formattedResults });
         console.log(formattedResults);

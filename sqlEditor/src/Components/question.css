@@ -1,0 +1,85 @@
+.question-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+  }
+  
+  .question-container h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .question-container form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .question-container label {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .question-container input[type="text"] {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .iteration {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+  }
+  
+  .iteration input {
+    flex: 1;
+  }
+  
+  .iteration button {
+    margin-left: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #e74c3c;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .iteration button:hover {
+    background-color: #c0392b;
+  }
+  
+  .question-container button[type="button"] {
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #3498db;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .question-container button[type="button"]:hover {
+    background-color: #2980b9;
+  }
+  
+  .question-container button[type="submit"] {
+    margin-top: 20px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #2ecc71;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .question-container button[type="submit"]:hover {
+    background-color: #27ae60;
+  }
+  
