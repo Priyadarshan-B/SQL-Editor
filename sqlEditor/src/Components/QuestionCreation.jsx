@@ -9,7 +9,7 @@ function Question() {
   const [question, setQuestion] = useState({ title: "", question: "" });
   const [questionOptions, setQuestionOptions] = useState([]);
   const [isAddingNewQuestion, setIsAddingNewQuestion] = useState(false);
-  const [outputs, setOutputs] = useState([{ sampleoutput: "", output: "" }]);
+  const [outputs, setOutputs] = useState([{ questionName:"",sampleoutput: "", output: "" }]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -48,7 +48,7 @@ function Question() {
   };
 
   const handleAddOutput = () => {
-    setOutputs([...outputs, { sampleoutput: "", output: "" }]);
+    setOutputs([...outputs, {questionName: "", sampleoutput: "", output: "" }]);
   };
 
   const handleDeleteOutput = (index) => {
@@ -71,6 +71,7 @@ function Question() {
     // Transform data into the required format
     const formattedOutputs = outputs.map(output => ({
       question: selectedQuestionId,
+      question_name : output.questionName,
       sample_output: output.sampleoutput.replace(/\r?\n/g, '\\n'), 
       output: output.output.replace(/\r?\n/g, '\\n') 
     }));
@@ -101,15 +102,23 @@ function Question() {
             </div>
             {outputs.map((output, index) => (
               <div className="output-block" key={index}>
+                <label htmlFor={`question-${index}`}>Question {index+1}</label>
+                <input 
+                type="text"
+                id={`question-${index}`}
+                value={output.questionName}
+                onChange={(e) => handleOutputChange(index, 'questionName', e.target.value)}
+
+                />
                 <label htmlFor={`sampleoutput-${index}`}>Sample Output {index + 1}</label>
-                <input
+                <textarea
                   type="text"
                   id={`sampleoutput-${index}`}
                   value={output.sampleoutput}
                   onChange={(e) => handleOutputChange(index, 'sampleoutput', e.target.value)}
                 />
                 <label htmlFor={`output-${index}`}>Output {index + 1}</label>
-                <input
+                <textarea
                   type="text"
                   id={`output-${index}`}
                   value={output.output}
