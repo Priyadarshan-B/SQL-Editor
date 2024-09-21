@@ -69,7 +69,9 @@ app.post('/execute-query', async (req, res) => {
     const { rollnumber, structureQuery, answerQuery } = req.body;
     let databaseName;
     let username;
-
+    if(!structureQuery || !answerQuery){
+        return  res.status(400).json({error:"Query is empty.."})
+    }
     try {
         let user = await User.findOne({ where: { rollnumber } });
         if (!user) {
